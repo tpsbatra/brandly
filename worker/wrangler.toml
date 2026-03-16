@@ -1,0 +1,14 @@
+name = "brandly-worker"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+# ─── Secrets (set via Cloudflare Dashboard or wrangler CLI) ───────────────────
+# Run these commands to set your secrets:
+#   wrangler secret put CLAUDE_API_KEY
+#   wrangler secret put IDEOGRAM_API_KEY
+#
+# NEVER put actual key values in this file.
+
+# ─── Environment Variables (non-secret) ──────────────────────────────────────
+[vars]
+ENVIRONMENT = "production"
