@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Brandly by DataOwl — AI Marketing Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#F5F3EE; --surface:#FFFFFF; --surface2:#EFECEA;
+  --border:#DDD9D2; --border2:#C8C3BB;
+  --text:#181714; --muted:#6E6A63; --hint:#AAA69E;
+  --accent:#1E1C19; --accent2:#F0EDE6;
+  --green:#1C6B47; --green-bg:#E6F3EC;
+  --blue:#1A3F7A; --blue-bg:#E6EDF8;
+  --amber:#7A4A10; --amber-bg:#F5EAD8;
+  --red:#8B1A1A; --red-bg:#F8E6E6;
+  --r:14px; --r-sm:8px; --shadow:0 2px 16px rgba(0,0,0,0.07);
+}
+html { scroll-behavior: smooth; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; font-size:15px; line-height:1.6; }
+
+/* ── PASSWORD SCREEN ─────────────────────────────────────────────────────── */
+#pwScreen {
+  position:fixed; inset:0; z-index:9999; background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem;
+  animation:fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes fadeOut { from{opacity:1} to{opacity:0} }
+.pw-logo { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:2.5rem; }
+.pw-logo img { height:50px; object-fit:contain; }
+.pw-logo-fallback { font-family:'Playfair Display',serif; font-size:30px; letter-spacing:-0.02em; display:none; }
+.pw-logo-fallback em { font-style:italic; color:var(--muted); }
+.pw-sub-label { font-size:12px; color:var(--hint); letter-spacing:0.05em; text-transform:uppercase; }
+.pw-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
+  padding:2rem 2.5rem; width:100%; max-width:360px; box-shadow:var(--shadow);
+}
+.pw-title { font-size:17px; font-weight:500; text-align:center; margin-bottom:4px; }
+.pw-desc { font-size:13px; color:var(--muted); text-align:center; margin-bottom:1.5rem; }
+.pw-wrap { position:relative; margin-bottom:10px; }
+.pw-wrap input {
+  width:100%; padding:11px 44px 11px 14px;
+  border:1px solid var(--border); border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif; font-size:16px; letter-spacing:0.2em;
+  color:var(--text); background:var(--bg); outline:none; transition:border-color 0.15s;
+}
+.pw-wrap input:focus { border-color:var(--border2); background:white; }
+.pw-wrap input.err { border-color:var(--red); animation:shake 0.4s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+.pw-eye { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:15px; color:var(--hint); padding:0; }
+.pw-error { font-size:12px; color:var(--red); min-height:16px; text-align:center; margin-bottom:10px; }
+.pw-btn { width:100%; padding:11px; background:var(--accent); color:white; border:none; border-radius:var(--r-sm); font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; cursor:pointer; transition:background 0.15s; }
+.pw-btn:hover { background:#333; }
+.pw-bottom { margin-top:1.5rem; font-size:12px; color:var(--hint); text-align:center; }
+
+/* ── LANDING PAGE ────────────────────────────────────────────────────────── */
+#landingPage { display:none; min-height:100vh; flex-direction:column; }
+#landingPage.on { display:flex; }
+
+.lp-nav {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.1rem 2.5rem; background:var(--surface); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:100;
+}
+.lp-nav-brand { display:flex; align-items:center; gap:10px; }
+.lp-nav-brand img { height:30px; object-fit:contain; }
+.lp-nav-name { font-family:'Playfair Display',serif; font-size:20px; letter-spacing:-0.02em; }
+.lp-nav-name em { font-style:italic; color:var(--muted); }
+.lp-nav-right { display:flex; align-items:center; gap:12px; }
+.lp-pill { font-size:11px; padding:3px 10px; border-radius:999px; background:var(--accent2); color:var(--muted); letter-spacing:0.03em; }
+.lp-nav-btn { padding:8px 20px; background:var(--accent); color:white; border:none; border-radius:var(--r-sm); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:background 0.15s; }
+.lp-nav-btn:hover { background:#333; }
+
+.lp-hero {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:5rem 2rem 4rem; position:relative; overflow:hidden;
+}
+.lp-hero::before {
+  content:''; position:absolute; top:-80px; left:50%; transform:translateX(-50%);
+  width:700px; height:700px; border-radius:50%;
+  background:radial-gradient(circle,rgba(30,28,25,0.035) 0%,transparent 70%); pointer-events:none;
+}
+.lp-eyebrow {
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:12px; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; color:var(--muted);
+  background:var(--surface); border:1px solid var(--border); padding:5px 14px; border-radius:999px; margin-bottom:1.75rem;
+}
+.lp-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
+.lp-h1 {
+  font-family:'Playfair Display',serif; font-size:clamp(36px,6vw,62px);
+  letter-spacing:-0.03em; line-height:1.1; max-width:680px; margin-bottom:1.25rem;
+}
+.lp-h1 em { font-style:italic; color:var(--muted); }
+.lp-hero-sub { font-size:17px; color:var(--muted); max-width:500px; line-height:1.65; margin-bottom:2.5rem; }
+.lp-btns { display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center; }
+.lp-cta {
+  padding:13px 32px; background:var(--accent); color:white; border:none; border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500; cursor:pointer;
+  transition:all 0.15s; display:inline-flex; align-items:center; gap:8px;
+}
+.lp-cta:hover { background:#333; transform:translateY(-1px); box-shadow:0 4px 20px rgba(0,0,0,0.14); }
+.lp-cta-hint { font-size:13px; color:var(--hint); }
+
+.lp-features { background:var(--surface); border-top:1px solid var(--border); padding:4rem 2rem; }
+.lp-feat-inner { max-width:900px; margin:0 auto; }
+.lp-sec-eyebrow { text-align:center; font-size:11px; font-weight:500; letter-spacing:0.07em; text-transform:uppercase; color:var(--hint); margin-bottom:6px; }
+.lp-sec-title { font-family:'Playfair Display',serif; font-size:30px; text-align:center; letter-spacing:-0.02em; margin-bottom:3rem; }
+.lp-feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+.lp-feat-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--r); padding:1.5rem; transition:box-shadow 0.2s; }
+.lp-feat-card:hover { box-shadow:var(--shadow); }
+.lp-feat-icon { width:40px; height:40px; border-radius:var(--r-sm); background:var(--accent2); display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:1rem; }
+.lp-feat-title { font-size:14px; font-weight:500; margin-bottom:5px; }
+.lp-feat-desc { font-size:13px; color:var(--muted); line-height:1.6; }
+
+.lp-how { padding:4rem 2rem; max-width:900px; margin:0 auto; }
+.lp-how-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; position:relative; }
+.lp-how-grid::before { content:''; position:absolute; top:19px; left:calc(12.5% + 10px); right:calc(12.5% + 10px); height:1px; background:var(--border); }
+.lp-how-item { display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; z-index:1; }
+.lp-how-num { width:38px; height:38px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:500; margin-bottom:10px; }
+.lp-how-title { font-size:13px; font-weight:500; margin-bottom:4px; }
+.lp-how-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+
+.lp-cta-band { background:var(--accent); padding:4rem 2rem; text-align:center; }
+.lp-cta-band-title { font-family:'Playfair Display',serif; font-size:30px; color:white; letter-spacing:-0.02em; margin-bottom:0.75rem; }
+.lp-cta-band-sub { font-size:15px; color:rgba(255,255,255,0.55); margin-bottom:2rem; }
+.lp-cta-band-btn { padding:13px 36px; background:white; color:var(--accent); border:none; border-radius:var(--r-sm); font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500; cursor:pointer; transition:all 0.15s; display:inline-flex; align-items:center; gap:8px; }
+.lp-cta-band-btn:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(0,0,0,0.18); }
+
+.lp-footer {
+  background:var(--surface); border-top:1px solid var(--border);
+  padding:1.25rem 2.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+}
+.lp-footer-brand { display:flex; align-items:center; gap:8px; }
+.lp-footer-brand img { height:22px; object-fit:contain; opacity:0.65; }
+.lp-footer-brand-name { font-size:13px; font-weight:500; color:var(--muted); }
+.lp-footer-right { font-size:12px; color:var(--hint); }
+
+/* ── APP SHELL ───────────────────────────────────────────────────────────── */
+#appShell { display:none; flex-direction:column; min-height:100vh; }
+#appShell.on { display:flex; }
+
+header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.8rem 2rem; background:var(--surface); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:200; flex-shrink:0;
+}
+.hdr-left { display:flex; align-items:center; gap:10px; }
+.hdr-logo-img { height:26px; object-fit:contain; }
+.hdr-divider { width:1px; height:18px; background:var(--border); }
+.logo { font-family:'Playfair Display',serif; font-size:21px; letter-spacing:-0.02em; }
+.logo em { font-style:italic; color:var(--muted); }
+.hdr-right { display:flex; align-items:center; gap:14px; }
+.hdr-home { font-size:12px; color:var(--hint); background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; padding:0; transition:color 0.15s; }
+.hdr-home:hover { color:var(--muted); }
+.worker-status { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); }
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--hint); }
+.status-dot.ok { background:var(--green); }
+.status-dot.err { background:var(--red); }
+
+.stepbar { display:flex; align-items:stretch; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto; padding:0 2rem; flex-shrink:0; }
+.step { display:flex; align-items:center; gap:8px; padding:0.8rem 0; margin-right:2rem; font-size:13px; color:var(--hint); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; cursor:default; transition:color 0.2s; }
+.step.active { color:var(--text); border-bottom-color:var(--accent); }
+.step.done { color:var(--green); }
+.step-n { width:20px; height:20px; border-radius:50%; border:1.5px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:500; flex-shrink:0; }
+.step.active .step-n { background:var(--accent); color:white; border-color:var(--accent); }
+.step.done .step-n { background:var(--green-bg); border-color:var(--green); }
+
+.app-body { flex:1; }
+main { max-width:780px; margin:0 auto; padding:2.5rem 1.5rem 3rem; }
+.section { display:none; animation:fadeUp 0.25s ease; }
+.section.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+.page-title { font-family:'Playfair Display',serif; font-size:34px; letter-spacing:-0.02em; line-height:1.15; margin-bottom:6px; }
+.page-title em { font-style:italic; color:var(--muted); }
+.page-sub { font-size:14px; color:var(--muted); margin-bottom:2rem; }
+.section-label { font-size:11px; font-weight:500; letter-spacing:0.07em; text-transform:uppercase; color:var(--hint); margin-bottom:7px; display:block; }
+
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:1.5rem; margin-bottom:1rem; }
+
+input[type="text"], textarea {
+  width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text); background:var(--bg);
+  outline:none; transition:border-color 0.15s; margin-bottom:14px;
+}
+input[type="text"]:focus, textarea:focus { border-color:var(--border2); background:white; }
+textarea { resize:vertical; min-height:80px; }
+
+.pills { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+.pill { padding:5px 14px; border-radius:999px; border:1px solid var(--border); font-size:13px; cursor:pointer; background:white; color:var(--muted); font-family:'DM Sans',sans-serif; transition:all 0.15s; }
+.pill:hover { border-color:var(--border2); color:var(--text); }
+.pill.on { background:var(--accent); color:white; border-color:var(--accent); }
+
+.btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:1.25rem; }
+.btn { padding:10px 22px; border-radius:var(--r-sm); font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; cursor:pointer; transition:all 0.15s; border:1px solid transparent; display:inline-flex; align-items:center; gap:7px; }
+.btn-dark { background:var(--accent); color:white; }
+.btn-dark:hover:not(:disabled) { background:#333; }
+.btn-dark:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-outline { background:white; color:var(--text); border-color:var(--border); }
+.btn-outline:hover { border-color:var(--border2); }
+.btn-sm { padding:5px 12px; font-size:12px; }
+.back-btn { display:inline-flex; align-items:center; gap:5px; font-size:13px; color:var(--muted); cursor:pointer; margin-bottom:1.75rem; background:none; border:none; font-family:'DM Sans',sans-serif; padding:0; }
+.back-btn:hover { color:var(--text); }
+
+.upload-zone { border:1.5px dashed var(--border2); border-radius:var(--r); padding:2rem; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--bg); margin-bottom:14px; }
+.upload-zone:hover, .upload-zone.drag { border-color:var(--accent); background:var(--accent2); }
+.upload-zone input[type="file"] { display:none; }
+.upload-icon { font-size:26px; margin-bottom:7px; }
+.upload-label { font-size:14px; color:var(--muted); }
+.upload-label strong { color:var(--text); }
+.upload-hint { font-size:12px; color:var(--hint); margin-top:4px; }
+.upload-preview { display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--green-bg); border:1px solid var(--green); border-radius:var(--r-sm); margin-bottom:14px; }
+.upload-preview img { width:44px; height:44px; object-fit:cover; border-radius:6px; }
+.upload-preview-name { font-size:13px; font-weight:500; color:var(--green); }
+.upload-preview-size { font-size:12px; color:var(--muted); }
+.upload-preview-remove { margin-left:auto; font-size:12px; color:var(--muted); cursor:pointer; background:none; border:none; font-family:'DM Sans',sans-serif; }
+.upload-preview-remove:hover { color:var(--red); }
+
+.loader { margin:0.5rem 0 1.25rem; }
+.loader-msg { font-size:13px; color:var(--muted); margin-bottom:8px; }
+.loader-track { height:2px; background:var(--border); border-radius:2px; overflow:hidden; }
+.loader-fill { height:100%; background:var(--accent); width:0%; transition:width 0.5s ease; }
+
+.dna-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1.5rem; }
+.dna-cell { background:var(--accent2); border-radius:var(--r-sm); padding:14px 16px; }
+.dna-cell.wide { grid-column:1/-1; }
+.dna-cell-lbl { font-size:10px; font-weight:500; letter-spacing:0.07em; text-transform:uppercase; color:var(--hint); margin-bottom:6px; }
+.dna-cell-val { font-size:14px; color:var(--text); line-height:1.55; }
+.dna-tagline { font-family:'Playfair Display',serif; font-style:italic; font-size:19px; }
+.swatches { display:flex; gap:7px; align-items:center; flex-wrap:wrap; margin-top:6px; }
+.swatch { width:26px; height:26px; border-radius:5px; border:1px solid rgba(0,0,0,0.1); }
+.swatch-hex { font-size:11px; color:var(--muted); }
+
+.camp-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:1.25rem; }
+.camp-card { background:white; border:1px solid var(--border); border-radius:var(--r); padding:1.1rem 1.25rem; cursor:pointer; transition:all 0.15s; }
+.camp-card:hover { border-color:var(--border2); box-shadow:var(--shadow); }
+.camp-card.sel { border:2px solid var(--accent); }
+.camp-tag { display:inline-block; font-size:11px; font-weight:500; padding:3px 10px; border-radius:999px; margin-bottom:9px; background:var(--accent2); color:var(--muted); letter-spacing:0.03em; }
+.camp-name { font-size:15px; font-weight:500; margin-bottom:5px; }
+.camp-desc { font-size:13px; color:var(--muted); line-height:1.5; }
+
+.asset-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.asset-card { background:white; border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+.asset-head { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--border); background:var(--bg); }
+.asset-platform { font-size:11px; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; color:var(--muted); }
+.asset-type-lbl { font-size:11px; color:var(--hint); }
+.asset-body { padding:14px; }
+.asset-text { font-size:13px; color:var(--text); line-height:1.65; white-space:pre-wrap; outline:none; min-height:60px; }
+.asset-text[contenteditable="true"]:focus { background:var(--bg); border-radius:var(--r-sm); padding:6px; }
+.asset-actions { display:flex; gap:6px; margin-top:10px; }
+
+.visual-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:1.5rem; }
+.visual-card { background:white; border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+.visual-card-head { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--border); background:var(--bg); }
+.visual-card-label { font-size:11px; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; color:var(--muted); }
+.visual-card-body { padding:10px; }
+.visual-card-body img { width:100%; border-radius:var(--r-sm); display:block; }
+.visual-card-body .gen-ph { width:100%; aspect-ratio:1; background:var(--surface2); border-radius:var(--r-sm); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--hint); font-size:13px; }
+.spinner { width:24px; height:24px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+.tabs { display:flex; border-bottom:1px solid var(--border); margin-bottom:1.5rem; }
+.tab { padding:0.65rem 1.25rem; font-size:13px; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; background:none; border-top:none; border-left:none; border-right:none; font-family:'DM Sans',sans-serif; transition:color 0.15s; }
+.tab.active { color:var(--text); border-bottom-color:var(--accent); font-weight:500; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+.badge { display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px; font-weight:500; }
+.badge-green { background:var(--green-bg); color:var(--green); }
+.badge-amber { background:var(--amber-bg); color:var(--amber); }
+
+/* ── FOOTER ──────────────────────────────────────────────────────────────── */
+.app-footer {
+  background:var(--surface); border-top:1px solid var(--border);
+  padding:0.9rem 2rem; display:flex; align-items:center; justify-content:center;
+  gap:8px; flex-shrink:0;
+}
+.app-footer-text { font-size:12px; color:var(--hint); }
+.app-footer-brand { display:flex; align-items:center; gap:7px; }
+.app-footer-brand img { height:20px; object-fit:contain; opacity:0.65; }
+.app-footer-brand-name { font-size:12px; font-weight:500; color:var(--muted); }
+
+/* ── TOAST ───────────────────────────────────────────────────────────────── */
+.toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%); background:var(--accent); color:white; font-size:13px; padding:10px 20px; border-radius:999px; z-index:9998; opacity:0; transition:opacity 0.2s; pointer-events:none; }
+.toast.show { opacity:1; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+@media(max-width:640px) {
+  .lp-feat-grid { grid-template-columns:1fr 1fr; }
+  .lp-how-grid { grid-template-columns:1fr 1fr; }
+  .lp-how-grid::before { display:none; }
+  .lp-h1 { font-size:34px; }
+  .dna-grid, .camp-grid, .asset-grid, .visual-grid { grid-template-columns:1fr; }
+  .dna-cell.wide { grid-column:1; }
+  .page-title { font-size:26px; }
+  main { padding:1.5rem 1rem 3rem; }
+  header { padding:0.8rem 1rem; }
+  .lp-nav { padding:1rem 1.25rem; }
+  .lp-footer { flex-direction:column; text-align:center; }
+}
+@media(max-width:400px) {
+  .lp-feat-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     1. PASSWORD SCREEN
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="pwScreen">
+  <div class="pw-logo">
+    <img src="dataowl-logo.png" alt="DataOwl" onerror="this.style.display='none';document.getElementById('pwFallback').style.display='block'"/>
+    <div class="pw-logo-fallback" id="pwFallback">Data<em>Owl</em></div>
+    <div class="pw-sub-label">Brandly · AI Marketing Studio</div>
+  </div>
+  <div class="pw-card">
+    <div class="pw-title">Welcome back</div>
+    <div class="pw-desc">Enter your access code to continue</div>
+    <div class="pw-wrap">
+      <input type="password" id="pwInput" placeholder="••••" maxlength="10"
+             onkeydown="if(event.key==='Enter')checkPw()" autocomplete="off"/>
+      <button class="pw-eye" onclick="togglePwEye()" title="Show/hide">👁</button>
+    </div>
+    <div class="pw-error" id="pwErr"></div>
+    <button class="pw-btn" onclick="checkPw()">Enter →</button>
+  </div>
+  <div class="pw-bottom">Powered by DataOwl · Private access only</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     2. LANDING PAGE
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="landingPage">
+
+  <nav class="lp-nav">
+    <div class="lp-nav-brand">
+      <img src="dataowl-logo.png" alt="DataOwl" onerror="this.style.display='none'"/>
+      <div class="lp-nav-name">brand<em>ly</em></div>
+    </div>
+    <div class="lp-nav-right">
+      <span class="lp-pill">by DataOwl</span>
+      <button class="lp-nav-btn" onclick="launchApp()">Open Studio →</button>
+    </div>
+  </nav>
+
+  <section class="lp-hero">
+    <div class="lp-eyebrow"><span class="lp-dot"></span>Claude AI · Ideogram V3</div>
+    <h1 class="lp-h1">Your brand.<br><em>Brilliantly</em> marketed.</h1>
+    <p class="lp-hero-sub">Brandly builds your brand DNA and generates on-brand campaigns, copy, and visual posts — in minutes, not days.</p>
+    <div class="lp-btns">
+      <button class="lp-cta" onclick="launchApp()">Start creating →</button>
+      <span class="lp-cta-hint">No design skills needed</span>
+    </div>
+  </section>
+
+  <section class="lp-features">
+    <div class="lp-feat-inner">
+      <div class="lp-sec-eyebrow">What Brandly does</div>
+      <div class="lp-sec-title">Everything you need to market your brand</div>
+      <div class="lp-feat-grid">
+        <div class="lp-feat-card"><div class="lp-feat-icon">🧬</div><div class="lp-feat-title">Brand DNA</div><div class="lp-feat-desc">Upload your logo or describe your business. Claude analyses your brand and builds a full identity — tone, voice, palette, keywords.</div></div>
+        <div class="lp-feat-card"><div class="lp-feat-icon">💡</div><div class="lp-feat-title">Campaign ideas</div><div class="lp-feat-desc">Get 4 tailored campaign concepts generated from your DNA, or write your own. Strategy-first, every time.</div></div>
+        <div class="lp-feat-card"><div class="lp-feat-icon">✍️</div><div class="lp-feat-title">On-brand copy</div><div class="lp-feat-desc">Ready-to-post captions for Instagram, Facebook, LinkedIn, Twitter/X and Email. All editable inline.</div></div>
+        <div class="lp-feat-card"><div class="lp-feat-icon">🎨</div><div class="lp-feat-title">Visual posts</div><div class="lp-feat-desc">Ideogram V3 generates bold branded marketing visuals for each platform — text overlays, lifestyle shots, product graphics.</div></div>
+        <div class="lp-feat-card"><div class="lp-feat-icon">📸</div><div class="lp-feat-title">Photo remix</div><div class="lp-feat-desc">Upload your own photo and Ideogram restyls it into a professional branded marketing image.</div></div>
+        <div class="lp-feat-card"><div class="lp-feat-icon">⚡</div><div class="lp-feat-title">Minutes, not days</div><div class="lp-feat-desc">From blank page to a full campaign — copy and visuals — in under 5 minutes. No agency needed.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:4rem 2rem; background:var(--bg);">
+    <div class="lp-how" style="padding:0; margin:0 auto;">
+      <div class="lp-sec-title" style="margin-bottom:2.5rem;">How it works</div>
+      <div class="lp-how-grid">
+        <div class="lp-how-item"><div class="lp-how-num">1</div><div class="lp-how-title">Enter brand info</div><div class="lp-how-desc">Describe your business, upload your logo, pick your tone</div></div>
+        <div class="lp-how-item"><div class="lp-how-num">2</div><div class="lp-how-title">Build brand DNA</div><div class="lp-how-desc">Claude builds your full brand identity profile</div></div>
+        <div class="lp-how-item"><div class="lp-how-num">3</div><div class="lp-how-title">Pick a campaign</div><div class="lp-how-desc">Choose from 4 tailored ideas or write your own</div></div>
+        <div class="lp-how-item"><div class="lp-how-num">4</div><div class="lp-how-title">Get your assets</div><div class="lp-how-desc">Download copy and visual posts, ready to publish</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="lp-cta-band">
+    <div class="lp-cta-band-title">Ready to create?</div>
+    <div class="lp-cta-band-sub">Your brand DNA is waiting to be built.</div>
+    <button class="lp-cta-band-btn" onclick="launchApp()">Open Brandly Studio →</button>
+  </div>
+
+  <footer class="lp-footer">
+    <div class="lp-footer-brand">
+      <img src="dataowl-logo.png" alt="DataOwl" onerror="this.style.display='none'"/>
+      <span class="lp-footer-brand-name">Powered by DataOwl</span>
+    </div>
+    <div class="lp-footer-right">Brandly · AI Marketing Studio · Built with Claude + Ideogram</div>
+  </footer>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     3. MAIN APP
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="appShell">
+
+  <header>
+    <div class="hdr-left">
+      <img src="dataowl-logo.png" class="hdr-logo-img" alt="DataOwl" onerror="this.style.display='none'"/>
+      <div class="hdr-divider"></div>
+      <div class="logo">brand<em>ly</em></div>
+    </div>
+    <div class="hdr-right">
+      <button class="hdr-home" onclick="showLanding()">← Home</button>
+      <div class="worker-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">checking...</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="stepbar">
+    <div class="step active" id="si1"><div class="step-n">1</div>Brand</div>
+    <div class="step" id="si2"><div class="step-n">2</div>DNA</div>
+    <div class="step" id="si3"><div class="step-n">3</div>Campaign</div>
+    <div class="step" id="si4"><div class="step-n">4</div>Assets</div>
+  </div>
+
+  <div class="app-body">
+    <main>
+
+      <!-- Step 1: Brand -->
+      <div class="section active" id="s1">
+        <div class="page-title">Your brand,<br><em>your story.</em></div>
+        <div class="page-sub">Enter your website URL for instant brand extraction, or fill in the details manually.</div>
+
+        <!-- Input mode tabs -->
+        <div class="tabs" style="margin-bottom:1rem;">
+          <button class="tab active" id="tabUrl" onclick="switchInputMode('url')">&#127760; From website URL</button>
+          <button class="tab" id="tabManual" onclick="switchInputMode('manual')">&#9998; Enter manually</button>
+        </div>
+
+        <!-- URL mode -->
+        <div id="inputUrl">
+          <div class="card">
+            <span class="section-label">Your website URL</span>
+            <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;">
+              <input type="text" id="scrapeUrl" placeholder="https://yourbusiness.com" style="margin-bottom:0;flex:1;min-width:200px;"/>
+              <button class="btn btn-dark" onclick="scrapeAndFill()" id="scrapeBtn" style="white-space:nowrap;flex-shrink:0;">Extract brand &#8594;</button>
+            </div>
+            <div id="scrapeStatus" style="margin-top:10px;display:none;">
+              <div class="loader-msg" id="scrapeMsg">Fetching your website...</div>
+              <div class="loader-track"><div class="loader-fill" id="scrapeBar"></div></div>
+            </div>
+            <div id="scrapeError" style="display:none;margin-top:10px;font-size:13px;color:var(--red);padding:10px 14px;background:var(--red-bg);border-radius:var(--r-sm);"></div>
+            <div id="scrapeSuccess" style="display:none;margin-top:10px;font-size:13px;color:var(--green);padding:10px 14px;background:var(--green-bg);border-radius:var(--r-sm);border:1px solid var(--green);"></div>
+          </div>
+          <div id="scrapePreviewCard" style="display:none;" class="card">
+            <span class="section-label">Extracted brand preview</span>
+            <div id="scrapePreviewContent"></div>
+            <div style="margin-top:0.75rem;font-size:13px;color:var(--muted);">Fields pre-filled below. Review, edit if needed, then build your DNA.</div>
+          </div>
+        </div>
+
+        <!-- Manual / shared fields shown in both modes -->
+        <div id="inputManual">
+          <div class="card">
+            <span class="section-label">Brand images (optional)</span>
+            <div class="upload-zone" id="brandUploadZone" onclick="document.getElementById('brandFileIn').click()"
+                 ondragover="handleDrag(event,'brandUploadZone')" ondragleave="handleDragLeave(event,'brandUploadZone')" ondrop="handleDrop(event,'brand')">
+              <input type="file" id="brandFileIn" accept="image/*" onchange="handleFileSelect(event,'brand')"/>
+              <div class="upload-icon">&#128444;</div>
+              <div class="upload-label"><strong>Click to upload</strong> or drag &amp; drop</div>
+              <div class="upload-hint">Logo, brand photos, product images &#8212; JPG, PNG, WebP</div>
+            </div>
+            <div id="brandPreview" style="display:none;"></div>
+          </div>
+          <div class="card">
+            <span class="section-label">Business name</span>
+            <input type="text" id="bizName" placeholder="e.g. Bloom Coffee Co."/>
+            <span class="section-label">What does your business do?</span>
+            <textarea id="bizDesc" placeholder="e.g. We're a specialty coffee shop in Melbourne known for our single-origin beans, cozy atmosphere, and monthly tasting events."></textarea>
+            <span class="section-label">Target audience</span>
+            <input type="text" id="bizAudience" placeholder="e.g. Coffee lovers aged 25&#8211;45, remote workers, weekend brunch-goers"/>
+            <span class="section-label">Brand tone</span>
+            <div class="pills" id="tonePills">
+              <button class="pill on" onclick="pickTone(this)">Friendly</button>
+              <button class="pill" onclick="pickTone(this)">Professional</button>
+              <button class="pill" onclick="pickTone(this)">Playful</button>
+              <button class="pill" onclick="pickTone(this)">Inspiring</button>
+              <button class="pill" onclick="pickTone(this)">Minimal</button>
+              <button class="pill" onclick="pickTone(this)">Bold</button>
+              <button class="pill" onclick="pickTone(this)">Luxurious</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-dark" onclick="buildDNA()">Build brand DNA &#8594;</button>
+        </div>
+      </div>
+
+      <!-- Step 2: DNA -->
+      <div class="section" id="s2">
+        <button class="back-btn" onclick="goStep(1)">← Back</button>
+        <div class="page-title">Your brand <em>DNA</em></div>
+        <div class="page-sub">We've analysed your brand. Review your identity profile below.</div>
+        <div class="loader" id="dnaLoader">
+          <div class="loader-msg" id="dnaMsg">Analysing your brand...</div>
+          <div class="loader-track"><div class="loader-fill" id="dnaBar"></div></div>
+        </div>
+        <div id="dnaOut" style="display:none;">
+          <div class="dna-grid" id="dnaGrid"></div>
+          <div class="btn-row">
+            <button class="btn btn-dark" onclick="genCampaigns()">Generate campaigns →</button>
+            <button class="btn btn-outline" onclick="goStep(1)">Edit brand info</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Campaign -->
+      <div class="section" id="s3">
+        <button class="back-btn" onclick="goStep(2)">← Back</button>
+        <div class="page-title">Choose a <em>campaign</em></div>
+        <div class="page-sub">Select a campaign tailored to your brand, or write your own.</div>
+        <div class="loader" id="campLoader">
+          <div class="loader-msg" id="campMsg">Generating campaign ideas...</div>
+          <div class="loader-track"><div class="loader-fill" id="campBar"></div></div>
+        </div>
+        <div id="campOut" style="display:none;">
+          <div class="camp-grid" id="campGrid"></div>
+          <div class="card">
+            <span class="section-label">Or describe your own campaign</span>
+            <textarea id="customCamp" placeholder="e.g. Promote our new seasonal menu for autumn..." style="min-height:60px;margin-bottom:0;"></textarea>
+          </div>
+          <div class="card">
+            <span class="section-label">Campaign image (optional)</span>
+            <div class="upload-zone" id="campUploadZone" onclick="document.getElementById('campFileIn').click()"
+                 ondragover="handleDrag(event,'campUploadZone')" ondragleave="handleDragLeave(event,'campUploadZone')" ondrop="handleDrop(event,'camp')">
+              <input type="file" id="campFileIn" accept="image/*" onchange="handleFileSelect(event,'camp')"/>
+              <div class="upload-icon">📸</div>
+              <div class="upload-label"><strong>Upload a photo</strong> to ground your visuals</div>
+              <div class="upload-hint">Product photo, team shot, venue — used as visual reference for generated posts</div>
+            </div>
+            <div id="campPreview" style="display:none;"></div>
+          </div>
+          <span class="section-label">Platforms</span>
+          <div class="pills" id="platPills">
+            <button class="pill on" onclick="togglePill(this)">Instagram</button>
+            <button class="pill on" onclick="togglePill(this)">Facebook</button>
+            <button class="pill" onclick="togglePill(this)">LinkedIn</button>
+            <button class="pill" onclick="togglePill(this)">Twitter/X</button>
+            <button class="pill" onclick="togglePill(this)">Email</button>
+          </div>
+          <div class="pills">
+            <button class="pill on" id="visualYes" onclick="setVisuals(true)">Yes — generate images</button>
+            <button class="pill" id="visualNo" onclick="setVisuals(false)">No — copy only</button>
+          </div>
+          <div id="engineToggleWrap">
+            <span class="section-label" style="margin-top:12px;">Image engine</span>
+            <div class="pills">
+              <button class="pill on" id="engineIdeogram" onclick="setEngine('ideogram')">Ideogram V3 <span style="font-size:11px;opacity:0.65;"> ~$0.08/img</span></button>
+              <button class="pill" id="engineNanoBanana" onclick="setEngine('nano-banana')">Nano Banana 2 <span style="font-size:11px;opacity:0.65;"> ~$0.05/img</span></button>
+            </div>
+            <div id="engineNote" style="font-size:12px;color:var(--muted);margin-top:7px;padding:8px 12px;background:var(--accent2);border-radius:var(--r-sm);">
+              Ideogram V3 — reliable, great for bold text overlays. Requires IDEOGRAM_API_KEY.
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-dark" onclick="genAssets()">Create marketing assets →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Assets -->
+      <div class="section" id="s4">
+        <button class="back-btn" onclick="goStep(3)">← Back</button>
+        <div class="page-title">Your marketing <em>assets</em></div>
+        <div class="page-sub">On-brand content ready to use across your channels.</div>
+        <div class="loader" id="assetsLoader">
+          <div class="loader-msg" id="assetsMsg">Creating your assets...</div>
+          <div class="loader-track"><div class="loader-fill" id="assetsBar"></div></div>
+        </div>
+        <div id="assetsOut" style="display:none;">
+          <div class="tabs">
+            <button class="tab active" onclick="switchTab(event,'copy')">📝 Copy</button>
+            <button class="tab" onclick="switchTab(event,'visuals')">🎨 Visual posts</button>
+          </div>
+          <div class="tab-panel active" id="tab-copy">
+            <div class="asset-grid" id="assetGrid"></div>
+          </div>
+          <div class="tab-panel" id="tab-visuals">
+            <div id="visualsContent">
+              <div style="font-size:14px;color:var(--muted);margin-bottom:1rem;">Generating visual posts with Ideogram — this takes ~15–30 seconds per image.</div>
+              <div class="visual-grid" id="visualGrid"></div>
+            </div>
+            <div id="visualsDisabled" style="display:none;font-size:14px;color:var(--muted);padding:1rem 0;">Visual post generation is off. Go back and enable it to generate images.</div>
+          </div>
+          <div class="tab-panel" id="tab-edit">
+            <div class="card">
+              <span class="section-label">Upload an image to edit</span>
+              <div class="upload-zone" id="editUploadZone" onclick="document.getElementById('editFileIn').click()"
+                   ondragover="handleDrag(event,'editUploadZone')" ondragleave="handleDragLeave(event,'editUploadZone')" ondrop="handleDrop(event,'edit')">
+                <input type="file" id="editFileIn" accept="image/*" onchange="handleFileSelect(event,'edit')"/>
+                <div class="upload-icon">&#128444;</div>
+                <div class="upload-label"><strong>Click to upload</strong> or drag &amp; drop</div>
+                <div class="upload-hint">Upload any marketing image to edit or restyle</div>
+              </div>
+              <div id="editPreview" style="display:none;"></div>
+            </div>
+            <div class="card" id="editActionsCard" style="display:none;">
+              <span class="section-label">What do you want to do?</span>
+              <div class="pills" style="margin-bottom:14px;">
+                <button class="pill on" id="editModeReplace" onclick="setEditMode('replace-bg')">Replace background</button>
+                <button class="pill" id="editModeRestyle" onclick="setEditMode('restyle')">Restyle image</button>
+              </div>
+              <span class="section-label" id="editPromptLabel">Describe the new background</span>
+              <textarea id="editPrompt" placeholder="e.g. A bright modern coffee shop interior with warm lighting" style="min-height:70px;margin-bottom:0;"></textarea>
+              <div class="btn-row">
+                <button class="btn btn-dark" onclick="runImageEdit()">Apply edit &#8594;</button>
+              </div>
+            </div>
+            <div id="editResultArea" style="display:none;margin-top:1rem;">
+              <div class="loader" id="editLoader" style="display:none;">
+                <div class="loader-msg" id="editMsg">Applying edit...</div>
+                <div class="loader-track"><div class="loader-fill" id="editBar"></div></div>
+              </div>
+              <div id="editResultCard" class="card" style="display:none;">
+                <span class="section-label">Edited image</span>
+                <img id="editResultImg" src="" alt="Edited image" style="width:100%;border-radius:var(--r-sm);display:block;margin-bottom:10px;"/>
+                <div class="asset-actions">
+                  <a id="editDownloadBtn" href="#" download class="btn btn-outline btn-sm" target="_blank">Download</a>
+                  <button class="btn btn-outline btn-sm" onclick="runImageEdit()">&#8634; Try again</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:1.5rem;">
+            <button class="btn btn-dark" onclick="genAssets()">↺ Regenerate</button>
+            <button class="btn btn-outline" onclick="goStep(3)">New campaign</button>
+            <button class="btn btn-outline" onclick="goStep(1)">Start over</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <span class="app-footer-text">Powered by</span>
+    <div class="app-footer-brand">
+      <img src="dataowl-logo.png" alt="DataOwl" onerror="this.style.display='none'"/>
+      <span class="app-footer-brand-name">DataOwl</span>
+    </div>
+    <span class="app-footer-text">· Brandly AI Marketing Studio</span>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  BRANDLY CONFIG — update this ONE value before going live               ║
+// ║  See SETUP.md Step 6 for instructions                                   ║
+// ╠══════════════════════════════════════════════════════════════════════════╣
+const WORKER_URL = 'https://brandly-worker.ssoconsul.workers.dev';
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+// ── Password ──────────────────────────────────────────────────────────────────
+const ACCESS_CODE = '2905';
+const SESSION_KEY = 'brandly_auth';
+
+function checkPw() {
+  const val = document.getElementById('pwInput').value;
+  if (val === ACCESS_CODE) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    const s = document.getElementById('pwScreen');
+    s.style.animation = 'fadeOut 0.3s ease forwards';
+    setTimeout(() => { s.style.display = 'none'; showLanding(); }, 280);
+  } else {
+    const inp = document.getElementById('pwInput');
+    inp.classList.add('err');
+    document.getElementById('pwErr').textContent = 'Incorrect code — please try again';
+    setTimeout(() => { inp.classList.remove('err'); inp.value = ''; inp.focus(); }, 600);
+  }
+}
+
+function togglePwEye() {
+  const i = document.getElementById('pwInput');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    document.getElementById('pwScreen').style.display = 'none';
+    showLanding();
+  } else {
+    setTimeout(() => document.getElementById('pwInput').focus(), 100);
+  }
+});
+
+// ── Screen navigation ─────────────────────────────────────────────────────────
+function showLanding() {
+  document.getElementById('landingPage').classList.add('on');
+  document.getElementById('appShell').classList.remove('on');
+  window.scrollTo({ top: 0 });
+}
+function launchApp() {
+  document.getElementById('landingPage').classList.remove('on');
+  document.getElementById('appShell').classList.add('on');
+  checkWorker();
+  window.scrollTo({ top: 0 });
+}
+
+// ── Worker health ─────────────────────────────────────────────────────────────
+async function checkWorker() {
+  try {
+    const r = await fetch(WORKER_URL + '/claude', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: 'ping' }], system: 'Reply with {"ok":true}' })
+    });
+    const dot = document.getElementById('statusDot'), txt = document.getElementById('statusText');
+    if (r.ok) { dot.className = 'status-dot ok'; txt.textContent = 'Worker connected'; }
+    else { dot.className = 'status-dot err'; txt.textContent = 'Worker error'; }
+  } catch {
+    document.getElementById('statusDot').className = 'status-dot err';
+    document.getElementById('statusText').textContent = 'Worker offline';
+  }
+}
+
+// ── App step nav ──────────────────────────────────────────────────────────────
+function goStep(n) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('s' + n).classList.add('active');
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('si' + i);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function switchTab(e, name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let brand = {}, dna = {}, campaigns = [], selCamp = null;
+let tone = 'Friendly', platforms = ['Instagram','Facebook'], generateVisuals = true;
+let brandImgData = null, brandImgType = null;
+let campImgData = null, campImgType = null;
+let imageEngine = 'ideogram'; // 'ideogram' or 'nano-banana'
+
+function pickTone(el) {
+  document.querySelectorAll('#tonePills .pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on'); tone = el.textContent;
+}
+function togglePill(el) {
+  el.classList.toggle('on');
+  platforms = [...document.querySelectorAll('#platPills .pill.on')].map(p => p.textContent);
+}
+function setVisuals(val) {
+  generateVisuals = val;
+  document.getElementById('visualYes').classList.toggle('on', val);
+  document.getElementById('visualNo').classList.toggle('on', !val);
+  document.getElementById('engineToggleWrap').style.display = val ? 'block' : 'none';
+}
+
+function setEngine(engine) {
+  imageEngine = engine;
+  document.getElementById('engineIdeogram').classList.toggle('on', engine==='ideogram');
+  document.getElementById('engineNanoBanana').classList.toggle('on', engine==='nano-banana');
+  const note = document.getElementById('engineNote');
+  if (engine === 'nano-banana') {
+    note.textContent = 'Nano Banana 2 — Google’s model (same as Pomelli). Requires GEMINI_API_KEY in your Worker.';
+    note.style.background = '#E6F3EC';
+    note.style.color = '#1C6B47';
+  } else {
+    note.textContent = 'Ideogram V3 — reliable, great for bold text overlays. Requires IDEOGRAM_API_KEY.';
+    note.style.background = 'var(--accent2)';
+    note.style.color = 'var(--muted)';
+  }
+}
+
+// ── File upload ───────────────────────────────────────────────────────────────
+function handleDrag(e, id) { e.preventDefault(); document.getElementById(id).classList.add('drag'); }
+function handleDragLeave(e, id) { document.getElementById(id).classList.remove('drag'); }
+function handleDrop(e, type) {
+  e.preventDefault();
+  document.getElementById(type==='brand'?'brandUploadZone':'campUploadZone').classList.remove('drag');
+  const f = e.dataTransfer.files[0]; if(f) processFile(f, type);
+}
+function handleFileSelect(e, type) { const f = e.target.files[0]; if(f) processFile(f, type); }
+function processFile(file, type) {
+  if (!file.type.startsWith('image/')) { showToast('Please upload an image file'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const b64 = e.target.result.split(',')[1], mt = file.type;
+    if (type === 'brand') { brandImgData = b64; brandImgType = mt; }
+    else if (type === 'edit') { editImgData = b64; editImgType = mt; }
+    else { campImgData = b64; campImgType = mt; }
+    const prevId = type==='brand'?'brandPreview':type==='edit'?'editPreview':'campPreview';
+    const zoneId = type==='brand'?'brandUploadZone':type==='edit'?'editUploadZone':'campUploadZone';
+    document.getElementById(zoneId).style.display = 'none';
+    document.getElementById(prevId).style.display = 'block';
+    document.getElementById(prevId).innerHTML = `<div class="upload-preview">
+      <img src="${e.target.result}" alt="preview"/>
+      <div><div class="upload-preview-name">${file.name}</div><div class="upload-preview-size">${(file.size/1024).toFixed(0)} KB</div></div>
+      <button class="upload-preview-remove" onclick="removeImg('${type}')">Remove</button>
+    </div>`;
+  };
+  reader.readAsDataURL(file);
+}
+function removeImg(type) {
+  if (type==='brand') { brandImgData=null; brandImgType=null; }
+  else if (type==='edit') { editImgData=null; editImgType=null; }
+  else { campImgData=null; campImgType=null; }
+  document.getElementById(type==='brand'?'brandPreview':type==='edit'?'editPreview':'campPreview').style.display='none';
+  document.getElementById(type==='brand'?'brandUploadZone':type==='edit'?'editUploadZone':'campUploadZone').style.display='block';
+  document.getElementById(type==='brand'?'brandFileIn':type==='edit'?'editFileIn':'campFileIn').value='';
+}
+
+// Show edit actions card when image is uploaded
+const _origShowPreview = showImagePreview;
+function showImagePreview(file, src, type) {
+  _origShowPreview(file, src, type);
+  if (type==='edit') {
+    document.getElementById('editActionsCard').style.display='block';
+  }
+}
+
+// ── Loading bar ───────────────────────────────────────────────────────────────
+function animBar(barId, msgId, msgs) {
+  const bar = document.getElementById(barId);
+  bar.style.width = '0%';
+  let pct=0, mi=0;
+  const iv = setInterval(() => {
+    pct = Math.min(pct + Math.random()*8+2, 88);
+    bar.style.width = pct+'%';
+    if (Math.random()>0.65 && mi<msgs.length-1) { mi++; document.getElementById(msgId).textContent=msgs[mi]; }
+  }, 400);
+  return { done: () => { clearInterval(iv); bar.style.width='100%'; }};
+}
+
+// ── API calls ─────────────────────────────────────────────────────────────────
+async function callClaude(messages, system) {
+  const r = await fetch(WORKER_URL+'/claude', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages, system})
+  });
+  const d = await r.json();
+  const text = d.content?.map(c=>c.text||'').join('')||'';
+  try { return JSON.parse(text.replace(/```json|```/g,'').trim()); } catch { return {}; }
+}
+async function callClaudeVision(imageData, mediaType, prompt) {
+  const r = await fetch(WORKER_URL+'/claude-vision', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({imageData, mediaType, prompt})
+  });
+  const d = await r.json();
+  const text = d.content?.map(c=>c.text||'').join('')||'';
+  try { return JSON.parse(text.replace(/```json|```/g,'').trim()); } catch { return {}; }
+}
+async function callIdeogramGen(prompt, ar) {
+  const r = await fetch(WORKER_URL+'/ideogram/generate', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({prompt, aspect_ratio:ar||'ASPECT_1_1', style_type:'DESIGN'})
+  });
+  return (await r.json())?.data?.[0]?.url||null;
+}
+async function callIdeogramRemix(imageData, mediaType, prompt, ar) {
+  const r = await fetch(WORKER_URL+'/ideogram/remix', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({imageData, mediaType, prompt, aspect_ratio:ar||'ASPECT_1_1', style_type:'DESIGN', image_weight:40})
+  });
+  return (await r.json())?.data?.[0]?.url||null;
+}
+
+// ── Nano Banana (Gemini) API calls ───────────────────────────────────────────
+async function callNanaBananaGen(prompt, ar) {
+  const r = await fetch(WORKER_URL+'/gemini-image', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({prompt, aspect_ratio:ar||'ASPECT_1_1'})
+  });
+  const d = await r.json();
+  if (!d.success || !d.image_base64) return null;
+  // Gemini returns base64 inline — convert to object URL for display
+  return 'data:'+d.mime_type+';base64,'+d.image_base64;
+}
+async function callNanaBananaRemix(imageData, mediaType, prompt) {
+  const r = await fetch(WORKER_URL+'/gemini-image-remix', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({imageData, mediaType, prompt})
+  });
+  const d = await r.json();
+  if (!d.success || !d.image_base64) return null;
+  return 'data:'+d.mime_type+';base64,'+d.image_base64;
+}
+
+// ── Unified image generation — routes to correct engine ──────────────────────
+async function generateImage(prompt, ar) {
+  if (imageEngine === 'nano-banana') {
+    return await callNanaBananaGen(prompt, ar);
+  }
+  return await callIdeogramGen(prompt, ar);
+}
+async function remixImage(imageData, mediaType, prompt, ar) {
+  if (imageEngine === 'nano-banana') {
+    return await callNanaBananaRemix(imageData, mediaType, prompt);
+  }
+  return await callIdeogramRemix(imageData, mediaType, prompt, ar);
+}
+
+// ── Step 1 → 2: Build DNA ─────────────────────────────────────────────────────
+async function buildDNA() {
+  const name=document.getElementById('bizName').value.trim();
+  const desc=document.getElementById('bizDesc').value.trim();
+  const aud=document.getElementById('bizAudience').value.trim();
+  if (!name||!desc) { showToast('Please enter your business name and description'); return; }
+  brand = { name, desc, aud, tone };
+  // If scrape already produced a full brand profile, use it directly and skip the Claude call
+  if (scrapedBrand && scrapedBrand.business_name && inputMode==='url') {
+    goStep(2);
+    document.getElementById('dnaLoader').style.display='none';
+    document.getElementById('dnaOut').style.display='block';
+    dna = scrapedBrand;
+    dna.fonts = scrapedBrand.fonts || scrapedBrand.fonts_detected || [];
+    renderDNA(dna);
+    return;
+  }
+  goStep(2);
+  document.getElementById('dnaLoader').style.display='block';
+  document.getElementById('dnaOut').style.display='none';
+  const anim = animBar('dnaBar','dnaMsg',['Analysing your brand...','Extracting tone of voice...','Mapping visual identity...','Building DNA profile...']);
+  let result;
+  if (brandImgData) {
+    document.getElementById('dnaMsg').textContent='Analysing your brand image...';
+    const vis = await callClaudeVision(brandImgData, brandImgType,
+      `Brand image for "${name}". Return JSON: dominant_colors (3 hex codes), visual_style (brief), image_mood (3 words)`);
+    result = await callClaude([{role:'user',content:
+      `Business:"${name}". Desc:"${desc}". Audience:"${aud||'general'}". Tone:"${tone}".
+      Visual style:"${vis.visual_style||''}". Mood:"${(vis.image_mood||[]).join(', ')}".
+      Return JSON: tagline, voice, usp, keywords(5), audience_insight, content_themes(3), suggested_colors(use ${JSON.stringify(vis.dominant_colors||[])})`}]);
+    result.visual_style = vis.visual_style; result.image_mood = vis.image_mood;
+  } else {
+    result = await callClaude([{role:'user',content:
+      `Business:"${name}". Desc:"${desc}". Audience:"${aud||'general'}". Tone:"${tone}".
+      Return JSON: tagline, voice, usp, keywords(5), audience_insight, content_themes(3), suggested_colors(3 hex codes)`}]);
+  }
+  anim.done(); dna=result;
+  document.getElementById('dnaLoader').style.display='none';
+  document.getElementById('dnaOut').style.display='block';
+  renderDNA(result);
+}
+
+function renderDNA(d) {
+  const fonts = d.fonts || d.fonts_detected || [];
+  const fontCell = fonts.length ? `<div class="dna-cell wide"><div class="dna-cell-lbl">Brand fonts detected</div><div class="dna-cell-val">${fonts.map(f=>`<span style="font-size:13px;padding:3px 10px;border-radius:999px;border:0.5px solid var(--border2);background:white;display:inline-block;margin:2px 4px 2px 0;">${f}</span>`).join('')}</div></div>` : '';
+  const sw = (d.suggested_colors||['#1E1C19','#6E6A63','#F0EDE6']).map(c=>`<div class="swatch" style="background:${c}" title="${c}"></div><span class="swatch-hex">${c}</span>`).join('');
+  const vis = d.visual_style?`<div class="dna-cell"><div class="dna-cell-lbl">Visual style</div><div class="dna-cell-val">${d.visual_style}</div></div>`:'';
+  document.getElementById('dnaGrid').innerHTML=`
+    <div class="dna-cell wide"><div class="dna-cell-lbl">Brand tagline</div><div class="dna-tagline">"${d.tagline||'Your brand, defined.'}"</div></div>
+    <div class="dna-cell"><div class="dna-cell-lbl">Brand voice</div><div class="dna-cell-val">${d.voice||''}</div></div>
+    <div class="dna-cell"><div class="dna-cell-lbl">Unique selling point</div><div class="dna-cell-val">${d.usp||''}</div></div>
+    <div class="dna-cell"><div class="dna-cell-lbl">Keywords</div><div class="dna-cell-val">${(d.keywords||[]).join(' · ')}</div></div>
+    <div class="dna-cell"><div class="dna-cell-lbl">Audience insight</div><div class="dna-cell-val">${d.audience_insight||''}</div></div>
+    ${vis}
+    <div class="dna-cell"><div class="dna-cell-lbl">Content themes</div><div class="dna-cell-val">${(d.content_themes||[]).join(' · ')}</div></div>
+    <div class="dna-cell wide"><div class="dna-cell-lbl">Brand palette</div><div class="swatches">${sw}</div></div>
+    ${fontCell}`;
+}
+
+// ── Step 2 → 3: Campaigns ─────────────────────────────────────────────────────
+async function genCampaigns() {
+  goStep(3);
+  document.getElementById('campLoader').style.display='block';
+  document.getElementById('campOut').style.display='none';
+  const anim=animBar('campBar','campMsg',['Generating campaign ideas...','Thinking strategically...','Crafting angles...']);
+  campaigns = await callClaude([{role:'user',content:
+    `Business:"${brand.name}". Tone:"${brand.tone}". Keywords:${JSON.stringify(dna.keywords)}. Themes:${JSON.stringify(dna.content_themes)}.
+    Generate 4 campaign ideas. Return JSON array of 4: tag(short type), name(5-7 words), description(2 sentences), hook(punchy opening line)`}]);
+  if (!Array.isArray(campaigns)) campaigns=[];
+  anim.done();
+  document.getElementById('campLoader').style.display='none';
+  document.getElementById('campOut').style.display='block';
+  document.getElementById('campGrid').innerHTML=campaigns.map((c,i)=>`
+    <div class="camp-card" id="cc${i}" onclick="pickCamp(${i})">
+      <div class="camp-tag">${c.tag||'Campaign'}</div>
+      <div class="camp-name">${c.name||''}</div>
+      <div class="camp-desc">${c.description||''}</div>
+    </div>`).join('');
+}
+function pickCamp(i) {
+  document.querySelectorAll('.camp-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('cc'+i).classList.add('sel');
+  selCamp=campaigns[i];
+}
+
+// ── Step 3 → 4: Assets ───────────────────────────────────────────────────────
+async function genAssets() {
+  const custom=document.getElementById('customCamp').value.trim();
+  const camp=custom?{name:custom,description:custom,hook:''}:selCamp;
+  if (!camp) { showToast('Please select a campaign or describe your own'); return; }
+  const plats=platforms.length?platforms:['Instagram','Facebook'];
+  goStep(4);
+  document.getElementById('assetsLoader').style.display='block';
+  document.getElementById('assetsOut').style.display='none';
+  const anim=animBar('assetsBar','assetsMsg',['Creating your assets...','Writing captions...','Crafting copy...','Almost there...']);
+  const copy=await callClaude([{role:'user',content:
+    `Business:"${brand.name}". Tone:"${brand.tone}". Voice:"${dna.voice}". Tagline:"${dna.tagline}".
+    Campaign:"${camp.name}". Hook:"${camp.hook||''}". Platforms:${JSON.stringify(plats)}.
+    Return JSON array, one per platform: platform, type(e.g."Instagram caption"), content(ready-to-post with emojis+hashtags)`}]);
+  anim.done();
+  document.getElementById('assetsLoader').style.display='none';
+  document.getElementById('assetsOut').style.display='block';
+  renderAssets(Array.isArray(copy)?copy:[]);
+  if (generateVisuals) {
+    document.getElementById('visualsDisabled').style.display='none';
+    document.getElementById('visualsContent').style.display='block';
+    renderVisPlaceholders(plats);
+    genVisuals(camp, plats);
+  } else {
+    document.getElementById('visualsDisabled').style.display='block';
+    document.getElementById('visualsContent').style.display='none';
+  }
+}
+function renderAssets(assets) {
+  document.getElementById('assetGrid').innerHTML=assets.map((a,i)=>`
+    <div class="asset-card">
+      <div class="asset-head"><div><div class="asset-platform">${a.platform||''}</div><div class="asset-type-lbl">${a.type||''}</div></div></div>
+      <div class="asset-body">
+        <div class="asset-text" id="at${i}" contenteditable="true">${a.content||''}</div>
+        <div class="asset-actions"><button class="btn btn-outline btn-sm" onclick="copyAsset(${i})">Copy</button></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Visual generation ─────────────────────────────────────────────────────────
+function renderVisPlaceholders(plats) {
+  document.getElementById('visualGrid').innerHTML=plats.map((p,i)=>`
+    <div class="visual-card" id="vc${i}">
+      <div class="visual-card-head"><div class="visual-card-label">${p}</div><span class="badge badge-amber">Generating...</span></div>
+      <div class="visual-card-body"><div class="gen-ph"><div class="spinner"></div><span>Creating visual...</span></div></div>
+    </div>`).join('');
+}
+async function genVisuals(camp, plats) {
+  const prompts=await callClaude([{role:'user',content:
+    `Business:"${brand.name}". Voice:"${dna.voice}". Colors:${JSON.stringify(dna.suggested_colors)}.
+    Campaign:"${camp.name}". Hook:"${camp.hook||''}". Tagline:"${dna.tagline}". Platforms:${JSON.stringify(plats)}.
+    Image engine: ${imageEngine==='nano-banana'?'Google Nano Banana 2 (Gemini)':'Ideogram V3'}.
+    Generate one detailed image generation prompt per platform for a bold on-brand marketing visual with text overlay.
+    ${imageEngine==='nano-banana'?'Nano Banana supports natural language and detailed scene descriptions.':'Make prompts specific for Ideogram text-on-image graphics.'}
+    Return JSON array: {platform,prompt,aspect_ratio}
+    aspect_ratio: ASPECT_9_16=Stories, ASPECT_1_1=Feed/FB, ASPECT_16_9=LinkedIn/Twitter`}]);
+  const ps=Array.isArray(prompts)?prompts:[];
+  for (let i=0;i<plats.length;i++) {
+    const p=ps[i]||{prompt:`Bold marketing poster for ${brand.name}. ${camp.name}. Colors:${(dna.suggested_colors||[]).join(',')}.`,aspect_ratio:'ASPECT_1_1'};
+    try {
+      const url=campImgData?await remixImage(campImgData,campImgType,p.prompt,p.aspect_ratio):await generateImage(p.prompt,p.aspect_ratio);
+      updateVisCard(i,plats[i],url,p.prompt);
+    } catch { visCardErr(i,plats[i]); }
+  }
+}
+function updateVisCard(i,platform,url,prompt) {
+  const card=document.getElementById('vc'+i); if(!card) return;
+  card.innerHTML=`
+    <div class="visual-card-head"><div class="visual-card-label">${platform}</div><span style="font-size:10px;color:var(--hint);">${imageEngine==='nano-banana'?'Nano Banana 2':'Ideogram V3'}</span><span class="badge badge-green">Ready</span></div>
+    <div class="visual-card-body">
+      ${url?`<img src="${url}" alt="${platform} visual" loading="lazy"/>
+        <div class="asset-actions" style="margin-top:8px;">
+          <a href="${url}" download class="btn btn-outline btn-sm" target="_blank">Download</a>
+          <button class="btn btn-outline btn-sm" onclick="redoVis(${i},'${platform}','${encodeURIComponent(prompt)}')">↺ Redo</button>
+        </div>`:`<div class="gen-ph" style="color:var(--red);">Generation failed</div>`}
+    </div>`;
+}
+function visCardErr(i,platform) {
+  const c=document.getElementById('vc'+i); if(!c) return;
+  c.querySelector('.visual-card-head').innerHTML=`<div class="visual-card-label">${platform}</div><span class="badge" style="background:var(--red-bg);color:var(--red);">Failed</span>`;
+  c.querySelector('.visual-card-body').innerHTML=`<div class="gen-ph" style="color:var(--red);">Could not generate</div>`;
+}
+async function redoVis(i,platform,enc) {
+  const prompt=decodeURIComponent(enc);
+  const c=document.getElementById('vc'+i);
+  c.querySelector('.badge').textContent='Generating...'; c.querySelector('.badge').className='badge badge-amber';
+  c.querySelector('.visual-card-body').innerHTML=`<div class="gen-ph"><div class="spinner"></div><span>Creating visual...</span></div>`;
+  try {
+    const url=campImgData?await remixImage(campImgData,campImgType,prompt,'ASPECT_1_1'):await generateImage(prompt,'ASPECT_1_1');
+    updateVisCard(i,platform,url,prompt);
+  } catch { visCardErr(i,platform); }
+}
+
+// ── Input mode switching ─────────────────────────────────────────────────────
+let inputMode = 'url';
+function switchInputMode(mode) {
+  inputMode = mode;
+  document.getElementById('tabUrl').classList.toggle('active', mode==='url');
+  document.getElementById('tabManual').classList.toggle('active', mode==='manual');
+  // In URL mode show both URL card + manual fields (for review/edit after scrape)
+  // In manual mode hide URL card, show manual fields only
+  document.getElementById('inputUrl').style.display = mode==='url' ? 'block' : 'none';
+  document.getElementById('inputManual').style.display = 'block';
+}
+
+// ── URL Scraping ──────────────────────────────────────────────────────────────
+async function scrapeAndFill() {
+  const url = document.getElementById('scrapeUrl').value.trim();
+  if (!url) { showToast('Please enter a URL'); return; }
+  if (!url.startsWith('http')) { showToast('URL must start with http:// or https://'); return; }
+
+  const btn = document.getElementById('scrapeBtn');
+  btn.disabled = true; btn.textContent = 'Extracting...';
+  document.getElementById('scrapeStatus').style.display = 'block';
+  document.getElementById('scrapeError').style.display = 'none';
+  document.getElementById('scrapeSuccess').style.display = 'none';
+  document.getElementById('scrapePreviewCard').style.display = 'none';
+
+  const anim = animBar('scrapeBar','scrapeMsg',[
+    'Fetching your website...','Reading page content...','Extracting brand signals...','Analysing with Claude...'
+  ]);
+
+  try {
+    const r = await fetch(WORKER_URL+'/scrape', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({url})
+    });
+    const d = await r.json();
+    anim.done();
+    btn.disabled=false; btn.textContent='Extract brand →';
+    document.getElementById('scrapeStatus').style.display='none';
+
+    if (!d.success || !d.brand) {
+      const errEl = document.getElementById('scrapeError');
+      errEl.style.display='block';
+      errEl.textContent = d.error || 'Could not extract brand data from this URL. Try a different page or use manual entry.';
+      return;
+    }
+
+    const b = d.brand;
+
+    // Pre-fill the manual fields
+    if (b.business_name) document.getElementById('bizName').value = b.business_name;
+    if (b.description)   document.getElementById('bizDesc').value = b.description;
+    if (b.audience)      document.getElementById('bizAudience').value = b.audience;
+
+    // Set tone pill
+    if (b.tone) {
+      document.querySelectorAll('#tonePills .pill').forEach(p => {
+        p.classList.toggle('on', p.textContent.trim() === b.tone);
+      });
+      tone = b.tone;
+    }
+
+    // Store scraped data for DNA step
+    scrapedBrand = b;
+
+    // Show preview card
+    const swatches = (b.suggested_colors||[]).map(c=>`<span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:${c};border:1px solid rgba(0,0,0,0.1);margin-right:4px;vertical-align:middle;" title="${c}"></span>`).join('');
+    const fonts = (b.fonts||b.fonts_detected||[]).join(', ') || 'none detected';
+    const conf = b.confidence==='high' ? '#1C6B47' : b.confidence==='medium' ? '#7A4A10' : '#6E6A63';
+
+    document.getElementById('scrapePreviewContent').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+        <div><span style="color:var(--hint);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;">Business</span><div style="margin-top:3px;font-weight:500;">${b.business_name||'—'}</div></div>
+        <div><span style="color:var(--hint);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;">Tone detected</span><div style="margin-top:3px;">${b.tone||'—'}</div></div>
+        <div style="grid-column:1/-1;"><span style="color:var(--hint);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;">Colours found</span><div style="margin-top:5px;">${swatches||'none'}</div></div>
+        <div style="grid-column:1/-1;"><span style="color:var(--hint);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;">Fonts detected</span><div style="margin-top:3px;">${fonts}</div></div>
+        <div style="grid-column:1/-1;"><span style="font-size:11px;color:${conf};">Extraction confidence: ${b.confidence||'unknown'}</span></div>
+      </div>`;
+    document.getElementById('scrapePreviewCard').style.display='block';
+
+    const successEl = document.getElementById('scrapeSuccess');
+    successEl.style.display='block';
+    successEl.textContent = `Brand extracted from ${url} — fields pre-filled below. Review and edit if needed.`;
+
+    // Show the og:image in the preview if available
+    if (b.og_image) {
+      try {
+        const imgRes = await fetch(b.og_image);
+        if (imgRes.ok) {
+          const blob = await imgRes.blob();
+          const reader = new FileReader();
+          reader.onload = e => {
+            brandImgData = e.target.result.split(',')[1];
+            brandImgType = blob.type||'image/jpeg';
+          };
+          reader.readAsDataURL(blob);
+        }
+      } catch {}
+    }
+
+  } catch(e) {
+    anim.done();
+    btn.disabled=false; btn.textContent='Extract brand →';
+    document.getElementById('scrapeStatus').style.display='none';
+    const errEl = document.getElementById('scrapeError');
+    errEl.style.display='block';
+    errEl.textContent = 'Request failed: ' + e.message;
+  }
+}
+
+// ── Image Edit Mode ───────────────────────────────────────────────────────────
+let editMode = 'replace-bg';
+let editImgData = null, editImgType = null;
+
+function setEditMode(mode) {
+  editMode = mode;
+  document.getElementById('editModeReplace').classList.toggle('on', mode==='replace-bg');
+  document.getElementById('editModeRestyle').classList.toggle('on', mode==='restyle');
+  const label = document.getElementById('editPromptLabel');
+  const prompt = document.getElementById('editPrompt');
+  if (mode==='replace-bg') {
+    label.textContent = 'Describe the new background';
+    prompt.placeholder = 'e.g. A bright modern coffee shop interior with warm lighting';
+  } else {
+    label.textContent = 'Describe the new style';
+    prompt.placeholder = 'e.g. Professional studio shot with clean white background and soft shadows';
+  }
+}
+
+async function runImageEdit() {
+  if (!editImgData) { showToast('Please upload an image to edit'); return; }
+  const prompt = document.getElementById('editPrompt').value.trim();
+  if (!prompt) { showToast('Please describe the edit you want'); return; }
+
+  document.getElementById('editResultArea').style.display='block';
+  document.getElementById('editLoader').style.display='block';
+  document.getElementById('editResultCard').style.display='none';
+
+  const anim = animBar('editBar','editMsg',['Applying edit...','Processing image...','Almost done...']);
+
+  try {
+    let imageUrl = null;
+    if (editMode==='replace-bg') {
+      const r = await fetch(WORKER_URL+'/ideogram/replace-bg', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({imageData:editImgData, mediaType:editImgType, prompt})
+      });
+      imageUrl = (await r.json())?.data?.[0]?.url||null;
+    } else {
+      // Restyle = remix with low image weight
+      const r = await fetch(WORKER_URL+'/ideogram/remix', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({imageData:editImgData, mediaType:editImgType, prompt, aspect_ratio:'ASPECT_1_1', style_type:'DESIGN', image_weight:30})
+      });
+      imageUrl = (await r.json())?.data?.[0]?.url||null;
+    }
+    anim.done();
+    document.getElementById('editLoader').style.display='none';
+    if (imageUrl) {
+      document.getElementById('editResultImg').src = imageUrl;
+      document.getElementById('editDownloadBtn').href = imageUrl;
+      document.getElementById('editResultCard').style.display='block';
+    } else {
+      showToast('Edit failed — try a different prompt or image');
+    }
+  } catch(e) {
+    anim.done();
+    document.getElementById('editLoader').style.display='none';
+    showToast('Edit error: '+e.message);
+  }
+}
+
+// Extend handleFileSelect and processFile to support 'edit' type
+const _origProcessFile = processFile;
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function copyAsset(i) {
+  navigator.clipboard.writeText(document.getElementById('at'+i).textContent).catch(()=>{});
+  showToast('Copied to clipboard!');
+}
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>
