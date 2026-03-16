@@ -17,10 +17,10 @@
  */
 
 // ── CONFIG: Replace YOUR_GITHUB_USERNAME with your actual GitHub username ──
-const ALLOWED_ORIGINS = [
-  'https://YOUR_GITHUB_USERNAME.github.io',  // <- CHANGE THIS
-  'http://localhost:3000',                    // for local dev
-  'http://127.0.0.1:5500',                   // for VS Code Live Server
+constALLOWED_ORIGINS = [
+  'https://tpsbatra.github.io',
+  'http://localhost:3000',
+  'http://127.0.0.1:5500',
 ];
 
 function corsHeaders(origin) {
