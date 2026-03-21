@@ -119,7 +119,7 @@ export default {
         formData.append('aspect_ratio', body.aspect_ratio || 'ASPECT_1_1');
         formData.append('rendering_speed', body.rendering_speed || 'DEFAULT');
         formData.append('style_type', body.style_type || 'DESIGN');
-        formData.append('magic_prompt', 'OFF');
+        formData.append('magic_prompt_option', 'OFF');
         if (body.negative_prompt) formData.append('negative_prompt', body.negative_prompt);
 
         const response = await fetch('https://api.ideogram.ai/v1/ideogram-v3/generate', {
