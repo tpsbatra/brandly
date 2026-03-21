@@ -117,7 +117,8 @@ export default {
         const formData = new FormData();
         formData.append('prompt', body.prompt);
         formData.append('aspect_ratio', body.aspect_ratio || 'ASPECT_1_1');
-        formData.append('rendering_speed', body.rendering_speed || 'DEFAULT');
+        formData.append('model', 'V_3');
+        formData.append('rendering_speed', body.rendering_speed || 'BALANCED');
         formData.append('style_type', body.style_type || 'DESIGN');
         formData.append('magic_prompt_option', 'OFF');
         if (body.negative_prompt) formData.append('negative_prompt', body.negative_prompt);
