@@ -1021,7 +1021,8 @@ async function genVisuals(camp, plats) {
   for (let i = 0; i < plats.length; i++) {
     const p = ps[i] || {prompt:`Bold marketing poster for ${brand.name}. ${camp.name}. Colors:${(dna.suggested_colors||[]).join(',')}.`, aspect_ratio:'ASPECT_1_1'};
     try {
-      // CHANGE 10: pass campImgMode so correct route is used
+      // Small delay between calls when remixing to avoid Gemini rate limiting
+      if (i > 0 && campImgData) await new Promise(r => setTimeout(r, 3000));
       const url = campImgData
         ? await remixImage(campImgData, campImgType, p.prompt, p.aspect_ratio, campImgMode)
         : await generateImage(p.prompt, p.aspect_ratio);
@@ -1043,13 +1044,13 @@ async function stampWithLogo(imageUrl) {
         canvas.width = img.width; canvas.height = img.height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
-        const logoW = Math.min(Math.round(img.width * 0.18), 220);
+        const logoW = Math.min(Math.round(img.width * 0.15), 180);
         const logoH = Math.round(logo.height * (logoW / logo.width));
-        const pad = 16, x = pad, y = img.height - logoH - pad;
-        const pillPad = 8, pillR = 8;
+        const pad = 14, x = pad, y = img.height - logoH - pad;
+        const pillPad = 5, pillR = 12;
         const pillX = x-pillPad, pillY = y-pillPad;
         const pillW = logoW+pillPad*2, pillH = logoH+pillPad*2;
-        ctx.save(); ctx.globalAlpha = 0.82; ctx.fillStyle = '#FFFFFF';
+        ctx.save(); ctx.globalAlpha = 0.55; ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
         ctx.moveTo(pillX+pillR, pillY); ctx.lineTo(pillX+pillW-pillR, pillY);
         ctx.quadraticCurveTo(pillX+pillW, pillY, pillX+pillW, pillY+pillR);
