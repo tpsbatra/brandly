@@ -1022,7 +1022,7 @@ async function genVisuals(camp, plats) {
     const p = ps[i] || {prompt:`Bold marketing poster for ${brand.name}. ${camp.name}. Colors:${(dna.suggested_colors||[]).join(',')}.`, aspect_ratio:'ASPECT_1_1'};
     try {
       // Small delay between calls when remixing to avoid Gemini rate limiting
-      if (i > 0 && campImgData) await new Promise(r => setTimeout(r, 3000));
+      if (i > 0 && campImgData) await new Promise(r => setTimeout(r, 6000));
       const url = campImgData
         ? await remixImage(campImgData, campImgType, p.prompt, p.aspect_ratio, campImgMode)
         : await generateImage(p.prompt, p.aspect_ratio);
@@ -1047,20 +1047,14 @@ async function stampWithLogo(imageUrl) {
         const logoW = Math.min(Math.round(img.width * 0.15), 180);
         const logoH = Math.round(logo.height * (logoW / logo.width));
         const pad = 14, x = pad, y = img.height - logoH - pad;
-        const pillPad = 5, pillR = 12;
-        const pillX = x-pillPad, pillY = y-pillPad;
-        const pillW = logoW+pillPad*2, pillH = logoH+pillPad*2;
-        ctx.save(); ctx.globalAlpha = 0.55; ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.moveTo(pillX+pillR, pillY); ctx.lineTo(pillX+pillW-pillR, pillY);
-        ctx.quadraticCurveTo(pillX+pillW, pillY, pillX+pillW, pillY+pillR);
-        ctx.lineTo(pillX+pillW, pillY+pillH-pillR);
-        ctx.quadraticCurveTo(pillX+pillW, pillY+pillH, pillX+pillW-pillR, pillY+pillH);
-        ctx.lineTo(pillX+pillR, pillY+pillH);
-        ctx.quadraticCurveTo(pillX, pillY+pillH, pillX, pillY+pillH-pillR);
-        ctx.lineTo(pillX, pillY+pillR);
-        ctx.quadraticCurveTo(pillX, pillY, pillX+pillR, pillY); ctx.closePath(); ctx.fill(); ctx.restore();
+        // Drop shadow behind logo instead of white pill — cleaner look
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.55)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 1;
         ctx.drawImage(logo, x, y, logoW, logoH);
+        ctx.restore();
         try { resolve(canvas.toDataURL('image/jpeg', 0.93)); } catch(e) { resolve(imageUrl); }
       };
       logo.onerror = () => resolve(imageUrl);
