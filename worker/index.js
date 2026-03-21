@@ -390,7 +390,6 @@ Return JSON with these exact fields:
               contents: [{ parts: [{ text: body.prompt }] }],
               generationConfig: {
                 responseModalities: ['IMAGE', 'TEXT'],
-                imagenConfig: { aspectRatio: imageSize },
               },
             }),
           }
