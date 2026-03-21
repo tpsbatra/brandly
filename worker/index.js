@@ -524,4 +524,3 @@ Return JSON with these exact fields:
     }
   },
 };
-
