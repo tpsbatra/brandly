@@ -957,8 +957,17 @@ async function buildDNA() {
     result.visual_style = vis.visual_style; result.image_mood = vis.image_mood;
   } else {
     result = await callClaude([{role:'user',content:
-      `Business:"${name}". Desc:"${desc}". Audience:"${aud||'general'}". Tone:"${tone}".
-      Return JSON: tagline, voice, usp, keywords(5), audience_insight, content_themes(3), suggested_colors(3 hex codes)`}]);
+      `You are a senior brand strategist. Build a precise, differentiated brand DNA profile.
+      Business:"${name}". Description:"${desc}". Target audience:"${aud||'general'}". Desired tone:"${tone}".
+      Rules:
+      - tagline: punchy, memorable, max 8 words, specific to this business (never generic)
+      - voice: 2 sentences describing HOW they communicate — rhythm, vocabulary, personality
+      - usp: one sentence on what makes them genuinely different from competitors
+      - keywords: 5 specific brand-relevant words (not generic like "quality" or "professional")
+      - audience_insight: the core emotional motivation or pain point driving their audience
+      - content_themes: 3 specific content pillars relevant to this business and audience
+      - suggested_colors: 3 hex codes that match the tone "${tone}" and feel right for this brand
+      Return ONLY valid JSON with these exact keys: tagline, voice, usp, keywords, audience_insight, content_themes, suggested_colors`}]);
   }
   anim.done(); dna = result;
   document.getElementById('dnaLoader').style.display = 'none';
@@ -990,8 +999,20 @@ async function genCampaigns() {
   document.getElementById('campOut').style.display = 'none';
   const anim = animBar('campBar','campMsg',['Generating campaign ideas...','Thinking strategically...','Crafting angles...']);
   campaigns = await callClaude([{role:'user',content:
-    `Business:"${brand.name}". Tone:"${brand.tone}". Keywords:${JSON.stringify(dna.keywords)}. Themes:${JSON.stringify(dna.content_themes)}.
-    Generate 4 campaign ideas. Return JSON array of 4: tag(short type), name(5-7 words), description(2 sentences), hook(punchy opening line)`}]);
+    `You are a creative director at a top marketing agency.
+    Business:"${brand.name}". Tone:"${brand.tone}". USP:"${dna.usp}". Voice:"${dna.voice}".
+    Keywords:${JSON.stringify(dna.keywords)}. Content themes:${JSON.stringify(dna.content_themes)}.
+    Generate 4 DISTINCT campaign ideas — each must use a different angle:
+    1. Emotional/storytelling angle
+    2. Product/service benefit angle
+    3. Social proof/community angle
+    4. Urgency/opportunity angle
+    Rules:
+    - name: 5-7 words, punchy and specific (not generic like "Brand Awareness Campaign")
+    - tag: short campaign type label e.g. "Launch", "Social Proof", "Seasonal", "Educational"
+    - description: 2 sentences — what the campaign does and why it works for this brand
+    - hook: one punchy opening line the audience would stop scrolling for
+    Return ONLY a valid JSON array of 4 objects with keys: tag, name, description, hook`}]);
   if (!Array.isArray(campaigns)) campaigns = [];
   anim.done();
   document.getElementById('campLoader').style.display = 'none';
@@ -1020,9 +1041,19 @@ async function genAssets() {
   document.getElementById('assetsOut').style.display = 'none';
   const anim = animBar('assetsBar','assetsMsg',['Creating your assets...','Writing captions...','Crafting copy...','Almost there...']);
   const copy = await callClaude([{role:'user',content:
-    `Business:"${brand.name}". Tone:"${brand.tone}". Voice:"${dna.voice}". Tagline:"${dna.tagline}".
-    Campaign:"${camp.name}". Hook:"${camp.hook||''}". Platforms:${JSON.stringify(plats)}.
-    Return JSON array, one per platform: platform, type(e.g."Instagram caption"), content(ready-to-post with emojis+hashtags)`}]);
+    `You are an expert social media copywriter who writes platform-native content that drives engagement.
+    Business:"${brand.name}". Tone:"${brand.tone}". Voice:"${dna.voice}". Tagline:"${dna.tagline}". USP:"${dna.usp}".
+    Campaign:"${camp.name}". Hook:"${camp.hook||''}". Audience insight:"${dna.audience_insight}".
+    Write one post per platform in ${JSON.stringify(plats)}.
+    Platform-specific rules:
+    - Instagram: 150-220 chars, hook first line, 5-8 relevant hashtags, 2-3 emojis, strong CTA
+    - Facebook: 180-280 chars, conversational, question or story opener, 2-3 hashtags, CTA
+    - LinkedIn: 200-300 chars, professional insight-led, no more than 3 hashtags, no fluff
+    - Twitter/X: max 240 chars, punchy, one hashtag max, optional emoji
+    - Email: subject line + 3-sentence body, personalised opener, clear single CTA
+    Rules for all: use the brand voice consistently, lead with the hook, end with a CTA.
+    Never use generic phrases like "Excited to share" or "Game-changer".
+    Return ONLY a valid JSON array, one object per platform: platform, type, content`}]);
   anim.done();
   document.getElementById('assetsLoader').style.display = 'none';
   document.getElementById('assetsOut').style.display = 'block';
@@ -1069,14 +1100,26 @@ async function genVisuals(camp, plats) {
   }
 
   const prompts = await callClaude([{role:'user',content:
-    `Business:"${brand.name}". Voice:"${dna.voice}". Colors:${JSON.stringify(dna.suggested_colors)}.
-    Campaign:"${camp.name}". Hook:"${camp.hook||''}". Tagline:"${dna.tagline}". Platforms:${JSON.stringify(plats)}.
-    Image engine: ${imageEngine==='nano-banana'?(nanaBananaModel==='nano-banana-2'?'Google Nano Banana 2 - gemini-3.1-flash-image-preview':'Google Nano Banana - gemini-2.5-flash-preview-05-20'):'Ideogram V3'}.
+    `You are an expert art director creating AI image generation prompts for marketing visuals.
+    Brand:"${brand.name}". Voice:"${dna.voice}". Brand colors:${JSON.stringify(dna.suggested_colors)}.
+    Campaign:"${camp.name}". Hook:"${camp.hook||''}". Tagline:"${dna.tagline}".
+    Image engine: ${imageEngine==='nano-banana'?(nanaBananaModel==='nano-banana-pro'?'Nano Banana Pro (gemini-3-pro-image-preview) — best quality, supports 4K, complex compositions':nanaBananaModel==='nano-banana-2'?'Nano Banana 2 (gemini-3.1-flash-image-preview) — high quality, great text rendering':'Nano Banana (gemini-2.5-flash-image) — fast, reliable, good quality'):'Ideogram V3 — specialises in text-on-image, bold graphics, design-focused visuals'}.
     ${imgContext}
-    Generate one detailed image generation prompt per platform for a bold on-brand marketing visual with text overlay.
-    ${imageEngine==='nano-banana'?'Nano Banana supports natural language and detailed scene descriptions.':'Make prompts specific for Ideogram text-on-image graphics.'}
-    Return JSON array: {platform,prompt,aspect_ratio}
-    aspect_ratio: ASPECT_9_16=Stories, ASPECT_1_1=Feed/FB, ASPECT_16_9=LinkedIn/Twitter`}]);
+    Generate one image prompt per platform in ${JSON.stringify(plats)}.
+    Platform-specific visual direction:
+    - Instagram (Stories ASPECT_9_16): vertical, bold text overlay top or bottom third, lifestyle or aspirational scene
+    - Instagram/Facebook (Feed ASPECT_1_1): square, centred composition, brand colours dominant, clear focal point
+    - Facebook (ASPECT_1_1): warm and approachable, community feel, readable text overlay
+    - LinkedIn (ASPECT_16_9): wide, professional, clean layout, data/insight feel or confident team/product shot
+    - Twitter/X (ASPECT_16_9): wide, punchy, high contrast, minimal text overlay
+    - Email (ASPECT_16_9): wide hero banner, clear headline, professional and on-brand
+    General rules for ALL prompts:
+    - Use brand colors ${JSON.stringify(dna.suggested_colors)} prominently in backgrounds, overlays or accents
+    - Include specific text overlay instructions: exact wording from the hook or tagline, font style (bold/serif/sans), placement
+    - Avoid stock photo clichés: no generic handshakes, no floating heads, no cheesy smiles
+    - ${imageEngine==='nano-banana'?'Write natural language scene descriptions — lighting, mood, composition, style. Be specific and vivid.':'Be specific about graphic design elements, layout, typography style, colour blocks.'}
+    - Describe the scene, lighting, mood, composition and any text overlay in one detailed paragraph
+    Return ONLY a valid JSON array, one object per platform: {platform, prompt, aspect_ratio}`}]);
   const ps = Array.isArray(prompts) ? prompts : [];
   for (let i = 0; i < plats.length; i++) {
     const p = ps[i] || {prompt:`Bold marketing poster for ${brand.name}. ${camp.name}. Colors:${(dna.suggested_colors||[]).join(',')}.`, aspect_ratio:'ASPECT_1_1'};
@@ -1106,7 +1149,7 @@ async function stampWithLogo(imageUrl) {
         ctx.drawImage(img, 0, 0);
         const logoW = Math.min(Math.round(img.width * 0.15), 180);
         const logoH = Math.round(logo.height * (logoW / logo.width));
-        const pad = 14, x = pad, y = img.height - logoH - pad;
+        const pad = 14, x = img.width - logoW - pad, y = pad;
         // Drop shadow behind logo instead of white pill — cleaner look
         ctx.save();
         ctx.shadowColor = 'rgba(0,0,0,0.55)';
