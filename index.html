@@ -553,7 +553,16 @@ textarea { resize:vertical; min-height:80px; }
               </div>
             </div>
           </div>
-          <div class="btn-row" style="margin-top:1.5rem;">
+          <div style="margin-top:1.5rem;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:500;letter-spacing:0.03em;">IMAGE ENGINE</div>
+            <div class="pills" style="margin-bottom:8px;" id="regenEnginePills">
+              <button class="pill on" id="regenNanaBanana" onclick="setRegenEngine('nano-banana')">Nano Banana <span style="font-size:10px;opacity:0.65;">fast</span></button>
+              <button class="pill" id="regenNanaBanana2" onclick="setRegenEngine('nano-banana-2')">Nano Banana 2 <span style="font-size:10px;opacity:0.65;">quality</span></button>
+              <button class="pill" id="regenNanaBananaPro" onclick="setRegenEngine('nano-banana-pro')">Nano Banana Pro <span style="font-size:10px;opacity:0.65;">best</span></button>
+              <button class="pill" id="regenIdeogram" onclick="setRegenEngine('ideogram')">Ideogram V3</button>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:0.5rem;">
             <button class="btn btn-dark" onclick="genAssets()">↺ Regenerate</button>
             <button class="btn btn-outline" onclick="goStep(3)">New campaign</button>
             <button class="btn btn-outline" onclick="goStep(1)">Start over</button>
@@ -695,6 +704,7 @@ function setEngine(engine) {
   }
   // refresh mode note when engine changes (keep mode text differs by engine)
   if (campImgData) setCampImgMode(campImgMode);
+  if (document.getElementById('regenNanaBanana')) syncRegenPills();
 }
 function setNanaBananaModel(model) {
   nanaBananaModel = model;
@@ -702,6 +712,25 @@ function setNanaBananaModel(model) {
   document.getElementById('modelNanaBanana2').classList.toggle('on', model === 'nano-banana-2');
   document.getElementById('modelNanaBananaPro').classList.toggle('on', model === 'nano-banana-pro');
   _updateNanaBananaNote();
+  if (document.getElementById('regenNanaBanana')) syncRegenPills();
+}
+function setRegenEngine(model) {
+  // Update both engine and model state
+  if (model === 'ideogram') {
+    setEngine('ideogram');
+  } else {
+    setEngine('nano-banana');
+    setNanaBananaModel(model);
+  }
+  // Sync regen pills
+  syncRegenPills();
+}
+function syncRegenPills() {
+  const m = imageEngine === 'ideogram' ? 'ideogram' : nanaBananaModel;
+  document.getElementById('regenNanaBanana').classList.toggle('on', m === 'nano-banana');
+  document.getElementById('regenNanaBanana2').classList.toggle('on', m === 'nano-banana-2');
+  document.getElementById('regenNanaBananaPro').classList.toggle('on', m === 'nano-banana-pro');
+  document.getElementById('regenIdeogram').classList.toggle('on', m === 'ideogram');
 }
 function _updateNanaBananaNote() {
   const note = document.getElementById('engineNote');
