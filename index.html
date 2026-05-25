@@ -478,6 +478,7 @@ textarea { resize:vertical; min-height:80px; }
               <div class="pills" style="margin-top:4px;">
                 <button class="pill on" id="modelNanaBananaFast" onclick="setNanaBananaModel('nano-banana')">Fast &amp; reliable <span style="font-size:11px;opacity:0.65;">gemini-2.5-flash</span></button>
                 <button class="pill" id="modelNanaBanana2" onclick="setNanaBananaModel('nano-banana-2')">Higher quality <span style="font-size:11px;opacity:0.65;">gemini-3.1-flash ⚠️ may be slow</span></button>
+                <button class="pill" id="modelNanaBananaPro" onclick="setNanaBananaModel('nano-banana-pro')">Pro — best quality <span style="font-size:11px;opacity:0.65;">gemini-3-pro ~$0.13/img</span></button>
               </div>
             </div>
             <div id="engineNote" style="font-size:12px;color:var(--muted);margin-top:7px;padding:8px 12px;background:#E6F3EC;border-radius:var(--r-sm);color:#1C6B47;">
@@ -699,11 +700,15 @@ function setNanaBananaModel(model) {
   nanaBananaModel = model;
   document.getElementById('modelNanaBananaFast').classList.toggle('on', model === 'nano-banana');
   document.getElementById('modelNanaBanana2').classList.toggle('on', model === 'nano-banana-2');
+  document.getElementById('modelNanaBananaPro').classList.toggle('on', model === 'nano-banana-pro');
   _updateNanaBananaNote();
 }
 function _updateNanaBananaNote() {
   const note = document.getElementById('engineNote');
-  if (nanaBananaModel === 'nano-banana-2') {
+  if (nanaBananaModel === 'nano-banana-pro') {
+    note.textContent = 'Nano Banana Pro (gemini-3-pro) — best quality, 4K capable. Slower and costs ~$0.13/img.';
+    note.style.background = '#F0E6FF'; note.style.color = '#5B00B5';
+  } else if (nanaBananaModel === 'nano-banana-2') {
     note.textContent = 'Nano Banana 2 (gemini-3.1-flash) — higher quality but currently has a known latency issue. May time out.';
     note.style.background = '#FFF8E6'; note.style.color = '#7A5C00';
   } else {
@@ -1098,7 +1103,7 @@ function updateVisCard(i, platform, url, prompt) {
   _visPrompts[i] = prompt; _visPlatforms[i] = platform;
   if (url) {
     card.innerHTML = `
-      <div class="visual-card-head"><div class="visual-card-label">${platform}</div><span style="font-size:10px;color:var(--hint);">${imageEngine==='nano-banana'?(nanaBananaModel==='nano-banana-2'?'Nano Banana 2':'Nano Banana'):'Ideogram V3'}</span><span class="badge badge-green">Ready</span></div>
+      <div class="visual-card-head"><div class="visual-card-label">${platform}</div><span style="font-size:10px;color:var(--hint);">${imageEngine==='nano-banana'?(nanaBananaModel==='nano-banana-pro'?'Nano Banana Pro':nanaBananaModel==='nano-banana-2'?'Nano Banana 2':'Nano Banana'):'Ideogram V3'}</span><span class="badge badge-green">Ready</span></div>
       <div class="visual-card-body">
         <img id="vis-img-${i}" src="${url}" alt="${platform} visual" loading="lazy"/>
         <div class="asset-actions" style="margin-top:8px;">
@@ -1130,7 +1135,7 @@ async function redoVis(i) {
   const c = document.getElementById('vc'+i);
   c.querySelector('.visual-card-head').innerHTML = `
     <div class="visual-card-label">${platform}</div>
-    <span style="font-size:10px;color:var(--hint);">${imageEngine==='nano-banana'?(nanaBananaModel==='nano-banana-2'?'Nano Banana 2':'Nano Banana'):'Ideogram V3'}</span>
+    <span style="font-size:10px;color:var(--hint);">${imageEngine==='nano-banana'?(nanaBananaModel==='nano-banana-pro'?'Nano Banana Pro':nanaBananaModel==='nano-banana-2'?'Nano Banana 2':'Nano Banana'):'Ideogram V3'}</span>
     <span class="badge badge-amber">Generating...</span>`;
   c.querySelector('.visual-card-body').innerHTML = `<div class="gen-ph"><div class="spinner"></div><span>Creating visual...</span></div>`;
   try {

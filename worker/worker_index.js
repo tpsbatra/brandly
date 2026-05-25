@@ -376,10 +376,11 @@ Return JSON with these exact fields:
         //                  nano-banana   = gemini-2.5-flash-preview-05-20  (fast, reliable) ← default
         const GEMINI_MODELS = {
           'nano-banana-2': 'gemini-3.1-flash-image-preview',
-          'nano-banana':   'gemini-2.5-flash-preview-05-20',
+          'nano-banana-pro': 'gemini-3-pro-image-preview',
+          'nano-banana':   'gemini-2.5-flash-image',
         };
         const selectedModel = GEMINI_MODELS[body.gemini_model] || GEMINI_MODELS['nano-banana'];
-        const engineLabel   = body.gemini_model === 'nano-banana-2' ? 'nano-banana-2' : 'nano-banana';
+        const engineLabel = ['nano-banana-2','nano-banana-pro'].includes(body.gemini_model) ? body.gemini_model : 'nano-banana';
 
         const sizeMap = {
           'ASPECT_1_1':  '1024x1024',
@@ -444,10 +445,11 @@ Return JSON with these exact fields:
         // Same model selection as /gemini-image
         const GEMINI_MODELS = {
           'nano-banana-2': 'gemini-3.1-flash-image-preview',
-          'nano-banana':   'gemini-2.5-flash-preview-05-20',
+          'nano-banana-pro': 'gemini-3-pro-image-preview',
+          'nano-banana':   'gemini-2.5-flash-image',
         };
         const selectedModel = GEMINI_MODELS[body.gemini_model] || GEMINI_MODELS['nano-banana'];
-        const engineLabel   = body.gemini_model === 'nano-banana-2' ? 'nano-banana-2' : 'nano-banana';
+        const engineLabel = ['nano-banana-2','nano-banana-pro'].includes(body.gemini_model) ? body.gemini_model : 'nano-banana';
 
         const geminiRes = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${env.GEMINI_API_KEY}`,
