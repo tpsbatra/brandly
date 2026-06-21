@@ -63,7 +63,7 @@ export default {
             'anthropic-version': '2023-06-01',
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 1500,
             system: body.system || 'You are an expert marketing strategist. Respond ONLY with valid JSON. No markdown, no backticks, no explanation.',
             messages: body.messages,
@@ -86,7 +86,7 @@ export default {
             'anthropic-version': '2023-06-01',
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 1500,
             system: 'You are a brand identity expert. Analyse images and respond ONLY with valid JSON. No markdown, no backticks.',
             messages: [{
@@ -317,7 +317,7 @@ export default {
             'anthropic-version': '2023-06-01',
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 1200,
             system: 'You are a brand identity expert. Extract brand information from website content and respond ONLY with valid JSON. No markdown, no backticks.',
             messages: [{
